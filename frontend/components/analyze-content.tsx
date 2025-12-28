@@ -18,7 +18,13 @@ export function AnalyzeContent() {
     setResult(null)
 
     try {
-      const res = await fetch("http://localhost:5000/analyze", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+      if (!API_URL) {
+        throw new Error("API URL not configured")
+      }
+
+      const res = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -28,7 +34,7 @@ export function AnalyzeContent() {
 
       const data = await res.json()
 
-      if (!data.success) {
+      if (!res.ok || !data.success) {
         throw new Error(data.message || "Analysis failed")
       }
 
@@ -68,16 +74,16 @@ export function AnalyzeContent() {
 
       {result && (
         <div className="mt-6 rounded-xl border bg-card shadow-sm">
-    <div className="border-b px-5 py-3 font-semibold text-lg flex items-center gap-2">
-      🧠 Gemini Analysis
-    </div>
+          <div className="border-b px-5 py-3 font-semibold text-lg flex items-center gap-2">
+            🧠 Gemini Analysis
+          </div>
 
-    <div className="px-5 py-4 max-h-[400px] overflow-y-auto">
-      <p className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">
-        {result}
-      </p>
-    </div>
-  </div>
+          <div className="px-5 py-4 max-h-[400px] overflow-y-auto">
+            <p className="whitespace-pre-wrap leading-relaxed text-sm text-muted-foreground">
+              {result}
+            </p>
+          </div>
+        </div>
       )}
     </div>
   )

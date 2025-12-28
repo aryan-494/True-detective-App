@@ -2,7 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 
 let client = null;
 
-// ✅ lazy initialization (safe with dotenv + ESM)
+// Lazy initialization
 function getClient() {
   if (!client) {
     if (!process.env.GEMINI_API_KEY) {
@@ -40,29 +40,22 @@ Do NOT sound like a chatbot.
 Do NOT use fear-based or judgmental language.
 `;
 
-  const USER_PROMPT = `
-Analyze the following content carefully and responsibly:
-
-"${content}"
-`;
-
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: SYSTEM_PROMPT + "\n\n" + USER_PROMPT,
+    model: "gemini-1.5-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: `${SYSTEM_PROMPT}\n\nAnalyze the following content:\n"${content}"`,
+          },
+        ],
+      },
+    ],
   });
 
-  // ✅ version-safe text extraction
-  let text = "";
-
-  if (typeof response.text === "string") {
-    text = response.text;
-  } else if (typeof response.text === "function") {
-    text = response.text();
-  } else if (
-    response.response?.candidates?.[0]?.content?.parts?.[0]?.text
-  ) {
-    text = response.response.candidates[0].content.parts[0].text;
-  }
+  const text =
+    response?.response?.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!text) {
     throw new Error("Gemini returned no usable text");
