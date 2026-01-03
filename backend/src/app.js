@@ -7,9 +7,12 @@ const app = express()
 // ✅ CORS (frontend → backend)
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
   })
-)
+);
+
 
 // ✅ Body parser
 app.use(express.json())
